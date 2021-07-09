@@ -24,56 +24,32 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public void onUpdateReceived(Update update) {
+        Watch watch = new Watch();
+        Describe describe = new Describe();
+        Participate participate = new Participate();
         if(update.getMessage()!=null && update.getMessage().hasText()) {
             Message message = update.getMessage();
             String chat_id = message.getChatId().toString();
-            Watch watch = new Watch();
-            Describe describe = new Describe();
-            Participate participate = new Participate();
 
             switch (message.getText()) {
                 case ("/start"):
                     try {
-                        execute(new SendMessage(chat_id, "Привет!" +
+                        SendMessage sendMessage = new SendMessage(chat_id, "Привет!" +
                                 "\nЯ бот, который поможет тебе тренировать навыки осознанности! " +
-                                "\nЕсть три навыка осознанности: наблюдение, описание, участие. " +
-                                "Чтобы тренировать случайный навык набери одну из команд : " +
-                                "\n\n/наблюдать\n" +
-                                "\n/описывать\n" +
-                                "\n/участвовать\n" +
-                                "\n\n и тренируй навык в течении нескольких минут." +
-                                " Постарайся уделять этому время каждый день! Удачи!"));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case ("/наблюдать"):
-                    try {
-                        execute(new SendMessage(chat_id, watch.getRandomWatch()));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case ("/описывать"):
-                    try {
-                        execute(new SendMessage(chat_id, describe.getRandomDescribe()));
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case ("/участвовать"):
-                    try {
-                        execute(new SendMessage(chat_id, participate.getRandomParticipate()));
+                                "\nЕсть три навыка осознанности: наблюдать, описывать, участвовать. " +
+                                "Выбери в меню снизу тип навыка, который ты хочешь тренировать, и тренируй его в течении нескольких минут." +
+                                " Постарайся уделять этому время каждый день! Удачи!");
+                        sendMessage.setReplyMarkup(getInlineKeyBoard());
+                        execute(sendMessage);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                     break;
                 default:
                     try {
-                        execute(new SendMessage(chat_id, "набери одну из команд : " +
-                                "\n\n/наблюдать\n" +
-                                "\n/описывать\n" +
-                                "\n/участвовать"));
+                        SendMessage sendMessage = new SendMessage(chat_id, "Выбери навык, который хочешь тренировать в меню снизу");
+                        sendMessage.setReplyMarkup(getInlineKeyBoard());
+                        execute(sendMessage);
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -81,9 +57,42 @@ public class Bot extends TelegramLongPollingBot {
             }
 
         }
+        if (update.hasCallbackQuery()) {
+            String chat_id = update.getCallbackQuery().getMessage().getChatId().toString();
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            if(callbackQuery.getData().equals("watch")) {
+                try {
+                    execute(new SendMessage(chat_id, watch.getRandomWatch()));
+
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(callbackQuery.getData().equals("describe")) {
+                try {
+                    execute(new SendMessage(chat_id, describe.getRandomDescribe()));
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(callbackQuery.getData().equals("participate")) {
+                try {
+                    execute(new SendMessage(chat_id, participate.getRandomParticipate()));
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                SendMessage sendMessage = new SendMessage(chat_id, "выбрать другой навык");
+                sendMessage.setReplyMarkup(getInlineKeyBoard());
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    /*public static InlineKeyboardMarkup getInlineKeyBoard() {
+    public static InlineKeyboardMarkup getInlineKeyBoard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
         InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
@@ -102,5 +111,5 @@ public class Bot extends TelegramLongPollingBot {
         rowList.add(keyboardButtonsRow1);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
-    }*/
+    }
 }
