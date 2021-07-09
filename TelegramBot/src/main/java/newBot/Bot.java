@@ -54,7 +54,7 @@ public class Bot extends TelegramLongPollingBot {
                     break;
                 default:
                     try {
-                        SendMessage sendMessage = new SendMessage(chat_id, "Выбери навык, который хочешь тренировать в меню снизу");
+                        SendMessage sendMessage = new SendMessage(chat_id, "В меню снизу выбери навык, который хочешь тренировать");
                         sendMessage.setReplyMarkup(getInlineKeyBoard());
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
